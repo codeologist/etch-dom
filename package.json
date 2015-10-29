@@ -1,0 +1,28 @@
+{
+  "name": "etch-dom",
+  "version": "1.0.0",
+  "description": "",
+  "main": "EtchNode.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-mocha": "^0.4.12",
+    "grunt-mocha-test": "^0.12.7",
+    "mocha": "^2.2.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codeologist/etch-dom.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codeologist/etch-dom/issues"
+  },
+  "homepage": "https://github.com/codeologist/etch-dom#readme"
+}
