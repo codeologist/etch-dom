@@ -21,54 +21,66 @@
             done();
         });
 
-        it('should allow constucting a tree.', function(done){
+        it('should add a parent', function(done){
 
-            var node = new EtchNode();
+            var node = new EtchNode( null, function(){
+                assert( node.parent instanceof EtchNode );
+                done();
+            });
 
             node.parent=new EtchNode();
-            node.childNodes.push(new EtchNode());
-
-            setTimeout( function(){
-                assert( node.parent instanceof EtchNode );
-                assert.equal( node.childNodes.length, 1 );
-
-                done();
-
-            }, 0 );
-
         });
 
-        it('should not allow constucting a tree from non EtchNode objects', function(done){
+        it('should add a child', function(done){
 
-            var node = new EtchNode();
+            var node = new EtchNode( null, function(){
+                assert.equal( node.childNodes.length, 1 );
+                done();
+            });
+
+            node.childNodes.push(new EtchNode());
+        });
+
+
+
+        it('should reject non EtchNode objects as a parent', function(done){
+
+            var node = new EtchNode( null, function(){
+                assert.equal( node.parent, null );
+                done();
+            });
 
             node.parent={};
-            node.childNodes.push({});
-
-            setTimeout( function(){
-                assert.equal( node.parent, null );
-                assert.equal( node.childNodes.length,0 );
-
-                done();
-
-            }, 0 );
         });
 
-        it('should treat parent and childNodes property as special cases', function(done){
 
-            var node = new EtchNode();
+
+        it('should reject non EtchNode objects as childnodes', function(done){
+
+            var node = new EtchNode( null, function(){
+                assert.equal( node.childNodes.length,0 );
+                done();
+            });
+            node.childNodes.push({});
+        });
+
+        it('should monitor plain arrays', function(done){
+
+            var node = new EtchNode( null, function( err, change ){
+
+                if ( change.type === "splice"){
+                    assert.equal( node.arr[0], 1 );
+                    done();
+                }
+            });
 
             node.prop={};
             node.arr = [];
-            node.arr.push(1);
 
             setTimeout( function(){
-                assert( typeof node.parent === "object" );
-                assert.equal( node.arr[0], 1 );
+                node.arr.push(1);
+            },0);
 
-                done();
 
-            }, 0 );
         });
-
     });
