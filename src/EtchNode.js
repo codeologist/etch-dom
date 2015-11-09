@@ -1,8 +1,32 @@
 
-    function EtchNode( tag, asyncCallback ) {
+    function EtchNode( tag, xxx ) {
 
+        var init = function(){};
+        var update = function(){console.log("x---x--------xxxxxxxx---------xxxxx")};
+        var destroy = function(){};
 
-        function handleObject( changes ){
+        if ( typeof xxx === "function"){
+            init = xxx;
+            update = xxx;
+            destroy = xxx;
+        }
+
+        if ( typeof xxx === "object"){
+
+            if ( typeof xxx.init === "function"){
+                init = xxx.init;
+            }
+
+            if ( typeof xxx.update === "function") {
+                update = xxx.update;
+            }
+
+            if ( typeof xxx.destroy === "function"){
+                destroy = xxx.destroy;
+            }
+        }
+
+        function handleObject( update, changes ){
 
             changes.forEach( function( change ) {
 
@@ -10,13 +34,13 @@
                     change.object["parent"] = null;
                     return;
                 }
-
-                this.asyncCallback( null,  change );
+console.log( "--------->",  change.type, change.name, change.object[change.name], update)
+                update.call( this, change.type, change.name, change.object[change.name] );
 
             }, this );
         }
 
-        function handleChildNodes( changes ) {
+        function handleChildNodes( tag, xxx, changes ) {
 
             changes.forEach(function (change) {
 
@@ -34,19 +58,21 @@
 
                 if ( !( change.object[index] instanceof EtchNode ) ){
                     change.object.splice( index, 1 );
-                    this.asyncCallback( new Error( "cannot append invalid node" ), null  );
+                    xxx.call( this, new Error( "cannot append invalid node" ), null  );
                     return;
                 }
 
-                this.asyncCallback( null, change );
+                xxx.call( this, null, change );
 
             }, this);
         }
 
+        if ( typeof tag === "string" ){
+            Object.defineProperty( this, "tagName",{
+                value:tag.toUpperCase()
+            });
+        }
         Object.defineProperties( this, {
-            asyncCallback:{
-                value:asyncCallback
-            },
             parent:{
                 value:null,
                 writable: true,
@@ -59,8 +85,10 @@
             }
         });
 
-        Object.observe( this, handleObject.bind( this ) );
-        Array.observe( this.childNodes, handleChildNodes.bind( this ) );
+        Object.observe( this, handleObject.bind( this, update ) );
+        Array.observe( this.childNodes, handleChildNodes.bind( this,tag, xxx ) );
+
+        init.call( this, "init" );
     }
 
     EtchNode.prototype.__elementIndex__ = function( tag ){
@@ -71,15 +99,33 @@
         return this.parent ? this.parent.root() : this;
     };
 
-    EtchNode.prototype.defineElement = function( tag ){
+    EtchNode.prototype.createElement = function( tag ){
+
+        var lifecycle = function(){};
+
+        if ( typeof tag === "string"){
+            tag = tag.toUpperCase();
+        }
+
+        if ( this.hasElementType( tag ) ){
+            lifecycle = this.__elementIndex__[tag].lifecycle;
+        }
+
+        return new EtchNode( tag, lifecycle );
+    };
+
+    EtchNode.prototype.defineElement = function( tag, lifecycle ){
+        tag = tag.toUpperCase();
         this.__elementIndex__[tag] = {
-            "tagName": tag
+            "tagName": tag,
+            "lifecycle": lifecycle || {}
         };
     };
 
 
     EtchNode.prototype.hasElementType = function( tag ){
-        return typeof this.__elementIndex__[tag]
+        tag = tag.toUpperCase();
+        return typeof this.__elementIndex__[tag];
     };
 
 

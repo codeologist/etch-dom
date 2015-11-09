@@ -19,9 +19,12 @@
 
         it('should add a parent EtchNode', function(done){
 
-            var node = new EtchNode( null, function(){
-                assert( this.parent instanceof EtchNode );
-                done();
+            var node = new EtchNode( null, function( type ){
+                if ( type !== "init"){
+                    assert( this.parent instanceof EtchNode );
+                    done();
+                }
+
             });
 
             node.parent=new EtchNode();
@@ -29,9 +32,11 @@
 
         it('should add a child EtchNode', function(done){
 
-            var node = new EtchNode( null, function(){
-                assert.equal( this.childNodes.length, 1 );
-                done();
+            var node = new EtchNode( null, function( type ){
+                if ( type !== "init"){
+                    assert.equal( this.childNodes.length, 1 );
+                    done();
+                }
             });
 
             node.childNodes.push(new EtchNode());
@@ -41,9 +46,11 @@
 
         it('should reject non EtchNode objects as a parent', function(done){
 
-            var node = new EtchNode( null, function(){
-                assert.equal( this.parent, null );
-                done();
+            var node = new EtchNode( null, function(type){
+                if ( type !== "init") {
+                    assert.equal(this.parent, null);
+                    done();
+                }
             });
 
             node.parent={};
@@ -52,9 +59,11 @@
 
         it('should reject non EtchNode objects as childnodes', function(done){
 
-            var node = new EtchNode( null, function(){
-                assert.equal( this.childNodes.length,0 );
-                done();
+            var node = new EtchNode( null, function(type){
+                if ( type !== "init") {
+                    assert.equal(this.childNodes.length, 0);
+                    done();
+                }
             });
             node.childNodes.push({});
 
@@ -64,9 +73,11 @@
 
         it('should append child nodes', function(done){
 
-            var node = new EtchNode( null, function(){
-                assert.equal( this.childNodes.length,0 );
-                done();
+            var node = new EtchNode( null, function(type){
+                if ( type !== "init") {
+                    assert.equal(this.childNodes.length, 0);
+                    done();
+                }
             });
             node.childNodes.push({});
 
@@ -79,13 +90,68 @@
 
     describe('EtchNode.defineElement', function() {
 
-        it('should create a new element index containing a reference to the custom element by name', function (done) {
+        var node = new EtchNode();
 
-            var node = new EtchNode();
-            node.defineElement("custom");
+        it('should register a new element in the index containing a reference to the custom element by name', function (done) {
+
+            node.defineElement("custom", {
+
+                init:function(){
+
+                }
+            });
 
             assert( node.hasElementType("custom") );
 
             done();
         });
+
+        it('should create a new element by tag name', function (done) {
+
+            var el =  node.createElement("custom");
+
+            assert( el.tagName === "CUSTOM" );
+
+            done();
+        });
+
+
+    });
+
+    describe('EtchNode Element Lifecycle', function() {
+
+        it('should trigger init event on element created', function (done) {
+
+            var node = new EtchNode();
+
+            node.defineElement("img", {
+                init:function(){
+                    done();
+                }
+            });
+
+            node.createElement("img" );
+
+        });
+
+        it('should trigger update event on element', function (done) {
+
+            var node = new EtchNode();
+
+            node.defineElement("img", {
+                update:function( type, prop, val ){
+console.log("=============",arguments)
+                    assert( type === "ADD");
+                    assert( prop === "src");
+                    assert( val === "12345");
+
+                    done();
+                }
+            });
+
+            node.createElement("img" );
+            node.src="12345";
+
+        });
+
     });
