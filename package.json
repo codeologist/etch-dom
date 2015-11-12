@@ -2,7 +2,7 @@
   "name": "etch-dom",
   "version": "1.0.0",
   "description": "",
-  "main": "EtchNode.js",
+  "main": "EtchDomNode.js",
   "directories": {
     "test": "test"
   },
@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/codeologist/etch-dom/issues"
   },
-  "homepage": "https://github.com/codeologist/etch-dom#readme"
+  "homepage": "https://github.com/codeologist/etch-dom#readme",
+  "dependencies": {
+    "etch-node": "1.0.6"
+  }
 }
