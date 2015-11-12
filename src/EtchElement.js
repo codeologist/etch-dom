@@ -23,12 +23,28 @@
     };
 
     EtchElement.prototype.createElement = function( tag ){
-        var Element = EtchNode.extend( EtchElement );
-        return new Element( tag.toUpperCase(), 1 );
+
+        var Element;
+
+        if ( this.definedElements[tag] ){
+            Element = EtchNode.extend( EtchElement,this.definedElements[tag] );
+        } else {
+            Element = EtchNode.extend( EtchElement );
+        }
+
+        var el = new Element( tag.toUpperCase(), 1 );
+        var e =  this.createEventObject();
+        e.currentTarget = el;
+        el.triggerEvent("onInit", e );
+        return el;
     };
 
     EtchElement.prototype.addEventListener = function( type, callback, capture ){
         this.___addEventListener___( Infinity, type, callback, capture );
+    };
+
+    EtchElement.prototype.eventListenOnce = function( type, callback, capture ){
+        this.___addEventListener___( 1, type, callback, capture );
     };
 
     EtchElement.prototype.appendChild = function( node ) {
@@ -45,7 +61,17 @@
     };
 
 
-    module.exports = EtchNode.extend( EtchElement );
+    EtchElement.prototype.definedElements = {};
+
+    var ExtendedEtchElement = EtchNode.extend( EtchElement );
+
+    Object.defineProperty( ExtendedEtchElement, "defineElement", {
+        value:function( customElementName, constructor ){
+            ExtendedEtchElement.prototype.definedElements[ customElementName ] = constructor;
+        }
+    });
+
+    module.exports = ExtendedEtchElement;
 
 
 //    function EtchDomNode( tag, xxx ) {

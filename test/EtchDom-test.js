@@ -21,10 +21,32 @@
 
             done();
         });
-
-
     });
 
+    describe('Custom Elements', function() {
+
+        it('should define a custom element', function (done) {
+            var count = 0;
+
+            function  AAA(){
+
+                this.eventListenOnce( "onInit", function(){
+                    count++;
+                });
+            }
+
+
+            EtchElement.defineElement("custom", AAA );
+
+            var customElement = new EtchElement().createElement("custom") ;
+
+            setTimeout( function(){
+                assert.equal( count, 1 );
+                done();
+            }, 0 );
+
+        });
+    });
 
     describe('Document', function() {
 
